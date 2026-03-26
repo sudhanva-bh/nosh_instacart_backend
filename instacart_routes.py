@@ -9,6 +9,7 @@ Usage:
 """
 
 import os
+import difflib
 import requests
 from flask import Blueprint, request, jsonify
 instacart_bp = Blueprint("instacart", __name__, url_prefix="/api")
@@ -110,20 +111,24 @@ def generate_instacart_list():
                 )
         
         # Validate unit against constraints
-        unit = str(item.get("unit", "")).lower().strip()
+        raw_unit = item.get("unit")
+        unit = str(raw_unit or "").lower().strip()
         if unit not in ALLOWED_UNITS:
-            return (
-                jsonify(
-                    {
-                        "error": (
-                            f"Invalid unit '{item.get('unit')}' at line_items[{idx}]. "
-                            f"Must be one of the supported Instacart units."
-                        ),
-                        "supported_units_preview": sorted(list(ALLOWED_UNITS))[:10] + ["..."]
-                    }
-                ),
-                400,
-            )
+            # Fuzzy match suggested units
+            suggestions = difflib.get_close_matches(unit, list(ALLOWED_UNITS), n=3, cutoff=0.6)
+            
+            error_msg = f"Invalid unit '{raw_unit}' at line_items[{idx}]."
+            response_json = {
+                "error": error_msg,
+                "message": "Must be one of the supported Instacart units."
+            }
+            
+            if suggestions:
+                response_json["suggested_units"] = suggestions
+            else:
+                response_json["supported_units_preview"] = sorted(list(ALLOWED_UNITS))[:10] + ["..."]
+                
+            return jsonify(response_json), 400
 
     instacart_payload = {
         "title": title,

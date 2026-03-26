@@ -102,7 +102,7 @@ The `unit` field must match one of Instacart's official measurement units (case-
 - **Mass:** `oz`, `lb`, `g`, `kg`
 - **Size:** `small`, `medium`, `large`
 
-If an invalid unit is provided, the API returns a `400 Bad Request`.
+If an invalid unit is provided, the API returns a `400 Bad Request` with fuzzy-matched suggestions (e.g., if you send "gallonx", it suggests "gallon").
 
 **Success response — `200 OK`**
 
