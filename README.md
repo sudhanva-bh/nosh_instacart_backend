@@ -1,4 +1,4 @@
-# nosh_backend
+# nosh_instacart_backend
 
 A lightweight Flask backend that acts as a **secure server-to-server proxy** for the [Instacart Developer Platform API](https://docs.instacart.com/developer_platform). It exposes a single endpoint your client app can call to generate a shareable Instacart shopping list URL — without ever exposing your API key to the frontend.
 
