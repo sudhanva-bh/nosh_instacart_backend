@@ -13,7 +13,37 @@ import requests
 from flask import Blueprint, request, jsonify
 instacart_bp = Blueprint("instacart", __name__, url_prefix="/api")
 
+# Constants
 INSTACART_API_URL = "https://connect.dev.instacart.tools/idp/v1/products/products_link"
+
+# Instacart official unit constraints for 'unit' field
+ALLOWED_UNITS = {
+    "cup", "cups", "c", "fl oz can", "fl oz container", "fl oz jar", "fl oz pouch",
+    "fl oz ounce", "gallon", "gallons", "gal", "gals",
+    "milliliter", "millilitre", "milliliters", "millillitres", "ml", "mls",
+    "liter", "litre", "liters", "litres", "l",
+    "pint", "pints", "pt", "pts", "pt container",
+    "quart", "quarts", "qt", "qts",
+    "tablespoon", "tablespoons", "tb", "tbs",
+    "teaspoon", "teaspoons", "ts", "tsp", "tspn",
+    "gram", "grams", "g", "gs",
+    "kilogram", "kilograms", "kg", "kgs",
+    "lb bag", "lb", "lb can", "lb container", "per lb",
+    "ounce", "ounces", "oz", "ounces bag", "oz bag", "ounces can", "oz can", "ounces container", "oz container",
+    "pound", "pounds", "lbs",
+    "bunch", "bunches",
+    "can", "cans",
+    "each",
+    "ears",
+    "head", "heads",
+    "large", "lrg", "lge", "lg",
+    "medium", "med", "md",
+    "package", "packages",
+    "packet",
+    "small", "sm",
+    "small ears",
+    "small head", "small heads"
+}
 
 
 def _get_api_key() -> str:
@@ -78,6 +108,22 @@ def generate_instacart_list():
                     ),
                     400,
                 )
+        
+        # Validate unit against constraints
+        unit = str(item.get("unit", "")).lower().strip()
+        if unit not in ALLOWED_UNITS:
+            return (
+                jsonify(
+                    {
+                        "error": (
+                            f"Invalid unit '{item.get('unit')}' at line_items[{idx}]. "
+                            f"Must be one of the supported Instacart units."
+                        ),
+                        "supported_units_preview": sorted(list(ALLOWED_UNITS))[:10] + ["..."]
+                    }
+                ),
+                400,
+            )
 
     instacart_payload = {
         "title": title,

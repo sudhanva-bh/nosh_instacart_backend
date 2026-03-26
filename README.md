@@ -93,7 +93,16 @@ Each `line_items` object:
 |------------|----------------|----------|--------------------------|
 | `name`     | string         | ✅        | Product name             |
 | `quantity` | number         | ✅        | Amount                   |
-| `unit`     | string         | ✅        | Unit of measure (`each`, `gallon`, etc.) |
+| `unit`     | string         | ✅        | Unit of measure (see below) |
+
+#### Supported Units
+The `unit` field must match one of Instacart's official measurement units (case-insensitive). Common values include:
+- **Countable:** `each`, `bunch`, `can`, `head`, `package`, `packet`
+- **Volume:** `cup`, `gal`, `fl oz`, `ml`, `l`, `pt`, `qt`, `tbsp`, `tsp`
+- **Mass:** `oz`, `lb`, `g`, `kg`
+- **Size:** `small`, `medium`, `large`
+
+If an invalid unit is provided, the API returns a `400 Bad Request`.
 
 **Success response — `200 OK`**
 
